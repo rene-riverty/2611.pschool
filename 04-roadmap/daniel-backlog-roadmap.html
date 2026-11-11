@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BU Collection · Backlog Roadmap</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #12202e;
+      --muted: #5a6b7c;
+      --line: rgba(18, 32, 46, 0.12);
+      --paper: #f3efe6;
+      --paper-2: #e8f0f2;
+      --now: #0f6b5c;
+      --next: #1f4e79;
+      --later: #6b5a3e;
+      --cut: #8a3b32;
+      --qw: #0f6b5c;
+      --bb: #1f4e79;
+      --fi: #8a7348;
+      --mp: #8a3b32;
+      --card: rgba(255, 252, 247, 0.92);
+      --shadow: 0 10px 30px rgba(18, 32, 46, 0.08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: "Manrope", sans-serif;
+      background:
+        radial-gradient(1200px 600px at 10% -10%, #d7ece7 0%, transparent 55%),
+        radial-gradient(900px 500px at 100% 0%, #d5e3ef 0%, transparent 50%),
+        linear-gradient(160deg, var(--paper), var(--paper-2));
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.35;
+      background-image:
+        linear-gradient(rgba(18, 32, 46, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(18, 32, 46, 0.03) 1px, transparent 1px);
+      background-size: 28px 28px;
+      mask-image: linear-gradient(to bottom, black, transparent 90%);
+    }
+
+    .wrap {
+      width: min(1180px, calc(100% - 2rem));
+      margin: 0 auto;
+      padding: 2rem 0 3.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    header {
+      display: grid;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      animation: rise 0.55s ease both;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .eyebrow span {
+      width: 0.55rem;
+      height: 0.55rem;
+      border-radius: 999px;
+      background: var(--now);
+      box-shadow: 0 0 0 4px rgba(15, 107, 92, 0.15);
+    }
+
+    h1 {
+      margin: 0;
+      font-family: "Syne", sans-serif;
+      font-size: clamp(1.85rem, 4vw, 2.75rem);
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      max-width: 14ch;
+    }
+
+    .sub {
+      margin: 0;
+      max-width: 54ch;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.55;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+
+    .chip {
+      border: 1px solid var(--line);
+      background: rgba(255, 252, 247, 0.75);
+      backdrop-filter: blur(8px);
+      border-radius: 999px;
+      padding: 0.45rem 0.85rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      margin: 1.25rem 0 1.5rem;
+      animation: rise 0.55s ease 0.08s both;
+    }
+
+    .toolbar button {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: rgba(255, 252, 247, 0.72);
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 0.55rem 0.95rem;
+      font: inherit;
+      font-size: 0.86rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .toolbar button:hover { transform: translateY(-1px); }
+    .toolbar button[aria-pressed="true"] {
+      background: var(--ink);
+      color: #fff7ea;
+      border-color: var(--ink);
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      align-items: start;
+    }
+
+    @media (max-width: 960px) {
+      .board { grid-template-columns: 1fr; }
+    }
+
+    .lane {
+      background: rgba(255, 252, 247, 0.55);
+      border: 1px solid var(--line);
+      border-radius: calc(var(--radius) + 4px);
+      padding: 0.9rem;
+      min-height: 280px;
+      animation: rise 0.55s ease both;
+    }
+
+    .lane[data-lane="NOW"] { animation-delay: 0.12s; --accent: var(--now); }
+    .lane[data-lane="NEXT"] { animation-delay: 0.18s; --accent: var(--next); }
+    .lane[data-lane="LATER"] { animation-delay: 0.24s; --accent: var(--later); }
+
+    .lane-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 0.85rem;
+      padding: 0.35rem 0.25rem 0.75rem;
+      border-bottom: 2px solid var(--accent);
+    }
+
+    .lane-head h2 {
+      margin: 0;
+      font-family: "Syne", sans-serif;
+      font-size: 1.05rem;
+      letter-spacing: 0.04em;
+      color: var(--accent);
+    }
+
+    .lane-head small {
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 0.78rem;
+    }
+
+    .cards {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 1rem 1rem 0.9rem;
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+      outline: none;
+    }
+
+    .card:hover,
+    .card:focus-visible {
+      transform: translateY(-3px);
+      border-color: rgba(18, 32, 46, 0.28);
+      box-shadow: 0 16px 34px rgba(18, 32, 46, 0.12);
+    }
+
+    .card.is-open {
+      border-color: color-mix(in srgb, var(--accent, var(--ink)) 45%, white);
+    }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.65rem;
+      margin-bottom: 0.55rem;
+    }
+
+    .ids {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+    }
+
+    .id-pill {
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      border-radius: 999px;
+      padding: 0.22rem 0.5rem;
+      background: rgba(18, 32, 46, 0.06);
+    }
+
+    .id-pill.origin {
+      background: color-mix(in srgb, var(--accent, var(--ink)) 14%, white);
+      color: var(--accent, var(--ink));
+    }
+
+    .badge {
+      flex: 0 0 auto;
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      border-radius: 999px;
+      padding: 0.28rem 0.55rem;
+      color: #fff;
+      white-space: nowrap;
+    }
+
+    .badge.qw { background: var(--qw); }
+    .badge.bb { background: var(--bb); }
+    .badge.fi { background: var(--fi); }
+    .badge.mp { background: var(--mp); }
+
+    .card h3 {
+      margin: 0 0 0.45rem;
+      font-size: 1rem;
+      line-height: 1.35;
+      font-weight: 760;
+    }
+
+    .rationale {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.45;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .card.is-open .rationale {
+      display: block;
+      -webkit-line-clamp: unset;
+    }
+
+    .meta-row {
+      margin-top: 0.75rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      opacity: 0.9;
+    }
+
+    .score {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--muted);
+      border: 1px dashed var(--line);
+      border-radius: 999px;
+      padding: 0.2rem 0.5rem;
+    }
+
+    .hint {
+      margin-top: 0.55rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--accent, var(--muted));
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.18s ease, transform 0.18s ease;
+    }
+
+    .card:hover .hint,
+    .card:focus-visible .hint,
+    .card.is-open .hint { opacity: 1; transform: none; }
+
+    .cut {
+      margin-top: 1.25rem;
+      border: 1px solid color-mix(in srgb, var(--cut) 35%, white);
+      background:
+        linear-gradient(180deg, rgba(138, 59, 50, 0.08), rgba(255, 252, 247, 0.7));
+      border-radius: calc(var(--radius) + 4px);
+      padding: 1rem;
+      animation: rise 0.55s ease 0.3s both;
+    }
+
+    .cut-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .cut-head h2 {
+      margin: 0;
+      font-family: "Syne", sans-serif;
+      color: var(--cut);
+      font-size: 1.1rem;
+      letter-spacing: 0.04em;
+    }
+
+    .cut-head p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .cut-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+
+    @media (max-width: 720px) {
+      .cut-grid { grid-template-columns: 1fr; }
+    }
+
+    .cut .card {
+      --accent: var(--cut);
+      background: rgba(255, 248, 246, 0.95);
+    }
+
+    .legend {
+      margin-top: 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .legend i {
+      display: inline-block;
+      width: 0.65rem;
+      height: 0.65rem;
+      border-radius: 999px;
+      margin-right: 0.35rem;
+      vertical-align: -1px;
+    }
+
+    .is-hidden { display: none !important; }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="eyebrow"><span></span> BU Collection · Product roadmap</div>
+      <h1>Hypothesis-led backlog</h1>
+      <p class="sub">
+        Close Daniel’s blind handoff and stop mid-journey stalls — without trading keepable plans for agreement volume.
+      </p>
+      <div class="meta">
+        <div class="chip">Team: 6 (PM · Design · 2 Eng · 2 Collection ops)</div>
+        <div class="chip">Signal: repeated checks 69.7% → ≤55%</div>
+        <div class="chip">Guardrail: SSR ≥ 34.7%</div>
+        <div class="chip">Window: 8 weeks</div>
+      </div>
+    </header>
+
+    <div class="toolbar" role="toolbar" aria-label="Filter lanes">
+      <button type="button" data-filter="ALL" aria-pressed="true">All</button>
+      <button type="button" data-filter="NOW" aria-pressed="false">NOW</button>
+      <button type="button" data-filter="NEXT" aria-pressed="false">NEXT</button>
+      <button type="button" data-filter="LATER" aria-pressed="false">LATER</button>
+      <button type="button" data-filter="CUT" aria-pressed="false">Cut list</button>
+    </div>
+
+    <section class="board" id="board">
+      <div class="lane" data-lane="NOW">
+        <div class="lane-head">
+          <h2>NOW</h2>
+          <small>This sprint</small>
+        </div>
+        <div class="cards" data-slot="NOW"></div>
+      </div>
+      <div class="lane" data-lane="NEXT">
+        <div class="lane-head">
+          <h2>NEXT</h2>
+          <small>Following sprints</small>
+        </div>
+        <div class="cards" data-slot="NEXT"></div>
+      </div>
+      <div class="lane" data-lane="LATER">
+        <div class="lane-head">
+          <h2>LATER</h2>
+          <small>Backlog</small>
+        </div>
+        <div class="cards" data-slot="LATER"></div>
+      </div>
+    </section>
+
+    <section class="cut" data-lane="CUT" id="cut-list">
+      <div class="cut-head">
+        <h2>Cut list</h2>
+        <p>Explicitly out — protect keepability and the hypothesis.</p>
+      </div>
+      <div class="cut-grid cards" data-slot="CUT"></div>
+    </section>
+
+    <div class="legend">
+      <span><i style="background:var(--qw)"></i>Quick win · high value / low effort</span>
+      <span><i style="background:var(--bb)"></i>Big bet · high value / high effort</span>
+      <span><i style="background:var(--fi)"></i>Fill-in · low value / low effort</span>
+      <span><i style="background:var(--mp)"></i>Money pit · low value / high effort</span>
+    </div>
+  </div>
+
+  <script>
+    const FEATURES = [
+      {
+        roadmapId: "B1",
+        backlogId: "B4",
+        lane: "NOW",
+        name: "Handoff summary for the agent when a consumer calls",
+        rationale: "Direct test of the hypothesis; attacks 69.7% repeated checks.",
+        value: 5,
+        effort: 2
+      },
+      {
+        roadmapId: "B2",
+        backlogId: "B2",
+        lane: "NOW",
+        name: "Plain explainer for why income is asked",
+        rationale: "Cheap; cuts Mara freeze + top call reason before Daniel is needed.",
+        value: 4,
+        effort: 1
+      },
+      {
+        roadmapId: "B3",
+        backlogId: "B5",
+        lane: "NEXT",
+        name: "Mobile photo upload / skip under threshold",
+        rationale: "Hits largest in-journey leak (Income doc→Plan −22%).",
+        value: 4,
+        effort: 3
+      },
+      {
+        roadmapId: "B4",
+        backlogId: "B1",
+        lane: "NEXT",
+        name: "One plan for several open claims",
+        rationale: "Multi-claim = 40–43% agent contact; biggest segment pain, heavier build.",
+        value: 5,
+        effort: 4
+      },
+      {
+        roadmapId: "B5",
+        backlogId: "B3",
+        lane: "LATER",
+        name: "Affordability check before plan options",
+        rationale: "Supports keepability after handoff works; not the first gap to close.",
+        value: 4,
+        effort: 3
+      },
+      {
+        roadmapId: "B6",
+        backlogId: "B6",
+        lane: "LATER",
+        name: "Pick a payment date that matches pay day",
+        rationale: "Nice keepability tweak; weak link to Daniel’s blind-handoff metric.",
+        value: 3,
+        effort: 2
+      },
+      {
+        roadmapId: "B7",
+        backlogId: "B8",
+        lane: "CUT",
+        name: "Chat assistant on every portal page",
+        rationale: "Raises agree but already lifts miss risk; volume, not sustainable handoff.",
+        value: 2,
+        effort: 4
+      },
+      {
+        roadmapId: "B8",
+        backlogId: "B7",
+        lane: "CUT",
+        name: "Show the shortest plan first to raise recovery",
+        rationale: "Month-4 default already hurt keepability (miss 15.6%→19%); anti-hypothesis.",
+        value: 1,
+        effort: 1
+      }
+    ];
+
+    function quadrant(feature) {
+      const highValue = feature.value >= 4;
+      const lowEffort = feature.effort <= 2;
+      if (highValue && lowEffort) return { key: "qw", label: "Quick win" };
+      if (highValue && !lowEffort) return { key: "bb", label: "Big bet" };
+      if (!highValue && lowEffort) return { key: "fi", label: "Fill-in" };
+      return { key: "mp", label: "Money pit" };
+    }
+
+    function cardHTML(feature) {
+      const q = quadrant(feature);
+      return `
+        <article class="card" tabindex="0" role="button" aria-expanded="false"
+          data-lane="${feature.lane}"
+          aria-label="${feature.roadmapId}: ${feature.name}">
+          <div class="card-top">
+            <div class="ids">
+              <span class="id-pill">${feature.roadmapId}</span>
+              <span class="id-pill origin">Case ${feature.backlogId}</span>
+            </div>
+            <span class="badge ${q.key}">${q.label}</span>
+          </div>
+          <h3>${feature.name}</h3>
+          <p class="rationale">${feature.rationale}</p>
+          <div class="meta-row">
+            <span class="score">Value ${feature.value}/5</span>
+            <span class="score">Effort ${feature.effort}/5</span>
+          </div>
+          <div class="hint">Click to expand rationale</div>
+        </article>
+      `;
+    }
+
+    function render() {
+      ["NOW", "NEXT", "LATER", "CUT"].forEach((lane) => {
+        const root = document.querySelector(`[data-slot="${lane}"]`);
+        root.innerHTML = FEATURES.filter((f) => f.lane === lane).map(cardHTML).join("");
+      });
+
+      document.querySelectorAll(".card").forEach((card) => {
+        const toggle = () => {
+          const open = card.classList.toggle("is-open");
+          card.setAttribute("aria-expanded", String(open));
+        };
+        card.addEventListener("click", toggle);
+        card.addEventListener("keydown", (event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            toggle();
+          }
+        });
+      });
+    }
+
+    function setFilter(filter) {
+      document.querySelectorAll(".toolbar button").forEach((btn) => {
+        btn.setAttribute("aria-pressed", String(btn.dataset.filter === filter));
+      });
+
+      document.querySelectorAll(".lane, .cut").forEach((section) => {
+        const lane = section.dataset.lane;
+        const show =
+          filter === "ALL" ||
+          (filter === "CUT" && lane === "CUT") ||
+          (filter !== "CUT" && (filter === lane || (filter !== "ALL" && lane === filter)));
+        // All: show everything. Specific lane: show that lane only. CUT: show cut list only.
+        if (filter === "ALL") {
+          section.classList.remove("is-hidden");
+        } else if (filter === "CUT") {
+          section.classList.toggle("is-hidden", lane !== "CUT");
+        } else {
+          section.classList.toggle("is-hidden", lane !== filter);
+        }
+      });
+
+      if (filter === "CUT") {
+        document.getElementById("cut-list").scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+
+    document.querySelectorAll(".toolbar button").forEach((btn) => {
+      btn.addEventListener("click", () => setFilter(btn.dataset.filter));
+    });
+
+    render();
+  </script>
+</body>
+</html>
