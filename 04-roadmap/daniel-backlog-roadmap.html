@@ -3,28 +3,28 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>BU Collection · Backlog Roadmap</title>
+  <title>BU Collection · Now / Next / Later roadmap</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --ink: #12202e;
-      --muted: #5a6b7c;
-      --line: rgba(18, 32, 46, 0.12);
-      --paper: #f3efe6;
-      --paper-2: #e8f0f2;
-      --now: #0f6b5c;
-      --next: #1f4e79;
-      --later: #6b5a3e;
-      --cut: #8a3b32;
-      --qw: #0f6b5c;
-      --bb: #1f4e79;
-      --fi: #8a7348;
-      --mp: #8a3b32;
-      --card: rgba(255, 252, 247, 0.92);
-      --shadow: 0 10px 30px rgba(18, 32, 46, 0.08);
-      --radius: 18px;
+      --bg: #0d1117;
+      --panel: #161b22;
+      --card: #21262d;
+      --card-hover: #262c36;
+      --border: #30363d;
+      --text: #f0f6fc;
+      --muted: #8b949e;
+      --now: #4ade80;
+      --next: #60a5fa;
+      --later: #9ca3af;
+      --cut: #fb7185;
+      --qw: #4ade80;
+      --bb: #60a5fa;
+      --fi: #d2a86a;
+      --mp: #fb7185;
+      --radius: 14px;
     }
 
     * { box-sizing: border-box; }
@@ -32,170 +32,133 @@
     body {
       margin: 0;
       min-height: 100vh;
-      color: var(--ink);
-      font-family: "Manrope", sans-serif;
-      background:
-        radial-gradient(1200px 600px at 10% -10%, #d7ece7 0%, transparent 55%),
-        radial-gradient(900px 500px at 100% 0%, #d5e3ef 0%, transparent 50%),
-        linear-gradient(160deg, var(--paper), var(--paper-2));
-    }
-
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      opacity: 0.35;
-      background-image:
-        linear-gradient(rgba(18, 32, 46, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(18, 32, 46, 0.03) 1px, transparent 1px);
-      background-size: 28px 28px;
-      mask-image: linear-gradient(to bottom, black, transparent 90%);
+      color: var(--text);
+      font-family: "DM Sans", sans-serif;
+      background: var(--bg);
+      line-height: 1.45;
     }
 
     .wrap {
-      width: min(1180px, calc(100% - 2rem));
+      width: min(1120px, calc(100% - 2.5rem));
       margin: 0 auto;
-      padding: 2rem 0 3.5rem;
-      position: relative;
-      z-index: 1;
+      padding: 2.25rem 0 3rem;
     }
 
     header {
-      display: grid;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-      animation: rise 0.55s ease both;
-    }
-
-    .eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.55rem;
-      font-size: 0.78rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-
-    .eyebrow span {
-      width: 0.55rem;
-      height: 0.55rem;
-      border-radius: 999px;
-      background: var(--now);
-      box-shadow: 0 0 0 4px rgba(15, 107, 92, 0.15);
-    }
-
-    h1 {
-      margin: 0;
-      font-family: "Syne", sans-serif;
-      font-size: clamp(1.85rem, 4vw, 2.75rem);
-      line-height: 1.05;
-      letter-spacing: -0.03em;
-      max-width: 14ch;
-    }
-
-    .sub {
-      margin: 0;
-      max-width: 54ch;
-      color: var(--muted);
-      font-size: 1rem;
-      line-height: 1.55;
-    }
-
-    .meta {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.6rem;
+      align-items: flex-start;
+      gap: 0.9rem 1.1rem;
+      margin-bottom: 1.75rem;
     }
 
-    .chip {
-      border: 1px solid var(--line);
-      background: rgba(255, 252, 247, 0.75);
-      backdrop-filter: blur(8px);
+    .step {
+      display: inline-flex;
+      align-items: center;
+      background: var(--now);
+      color: #04110a;
+      font-size: 0.82rem;
+      font-weight: 700;
       border-radius: 999px;
-      padding: 0.45rem 0.85rem;
-      font-size: 0.85rem;
-      font-weight: 600;
+      padding: 0.38rem 0.85rem;
+      white-space: nowrap;
+      margin-top: 0.2rem;
+    }
+
+    .titles h1 {
+      margin: 0;
+      font-size: clamp(1.45rem, 2.8vw, 1.85rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .titles p {
+      margin: 0.35rem 0 0;
+      color: var(--text);
+      font-size: 0.98rem;
+      opacity: 0.92;
     }
 
     .toolbar {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.55rem;
-      margin: 1.25rem 0 1.5rem;
-      animation: rise 0.55s ease 0.08s both;
+      gap: 0.45rem;
+      margin: 0 0 1.25rem;
     }
 
     .toolbar button {
       appearance: none;
-      border: 1px solid var(--line);
-      background: rgba(255, 252, 247, 0.72);
-      color: var(--ink);
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
       border-radius: 999px;
-      padding: 0.55rem 0.95rem;
+      padding: 0.4rem 0.8rem;
       font: inherit;
-      font-size: 0.86rem;
-      font-weight: 700;
+      font-size: 0.8rem;
+      font-weight: 600;
       cursor: pointer;
-      transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
     }
 
-    .toolbar button:hover { transform: translateY(-1px); }
+    .toolbar button:hover {
+      color: var(--text);
+      border-color: #484f58;
+    }
+
     .toolbar button[aria-pressed="true"] {
-      background: var(--ink);
-      color: #fff7ea;
-      border-color: var(--ink);
+      background: var(--card);
+      color: var(--text);
+      border-color: #484f58;
     }
 
     .board {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 1rem;
-      align-items: start;
+      align-items: stretch;
     }
 
-    @media (max-width: 960px) {
+    @media (max-width: 900px) {
       .board { grid-template-columns: 1fr; }
     }
 
     .lane {
-      background: rgba(255, 252, 247, 0.55);
-      border: 1px solid var(--line);
-      border-radius: calc(var(--radius) + 4px);
-      padding: 0.9rem;
-      min-height: 280px;
-      animation: rise 0.55s ease both;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-top-width: 3px;
+      border-radius: var(--radius);
+      padding: 1rem 1rem 1.05rem;
+      min-height: 100%;
     }
 
-    .lane[data-lane="NOW"] { animation-delay: 0.12s; --accent: var(--now); }
-    .lane[data-lane="NEXT"] { animation-delay: 0.18s; --accent: var(--next); }
-    .lane[data-lane="LATER"] { animation-delay: 0.24s; --accent: var(--later); }
+    .lane[data-lane="NOW"] { border-top-color: var(--now); }
+    .lane[data-lane="NEXT"] { border-top-color: var(--next); }
+    .lane[data-lane="LATER"] { border-top-color: var(--later); }
 
     .lane-head {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: 0.75rem;
-      margin-bottom: 0.85rem;
-      padding: 0.35rem 0.25rem 0.75rem;
-      border-bottom: 2px solid var(--accent);
+      margin-bottom: 0.95rem;
     }
 
     .lane-head h2 {
       margin: 0;
-      font-family: "Syne", sans-serif;
       font-size: 1.05rem;
+      font-weight: 700;
       letter-spacing: 0.04em;
-      color: var(--accent);
     }
 
     .lane-head small {
-      color: var(--muted);
+      display: block;
+      margin-top: 0.28rem;
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 0.72rem;
       font-weight: 600;
-      font-size: 0.78rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
     }
+
+    .lane[data-lane="NOW"] .lane-head small { color: var(--now); }
+    .lane[data-lane="NEXT"] .lane-head small { color: var(--next); }
+    .lane[data-lane="LATER"] .lane-head small { color: var(--later); }
 
     .cards {
       display: grid;
@@ -204,85 +167,61 @@
 
     .card {
       background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 1rem 1rem 0.9rem;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      padding: 0.9rem 0.95rem;
       cursor: pointer;
-      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
       outline: none;
     }
 
     .card:hover,
     .card:focus-visible {
-      transform: translateY(-3px);
-      border-color: rgba(18, 32, 46, 0.28);
-      box-shadow: 0 16px 34px rgba(18, 32, 46, 0.12);
-    }
-
-    .card.is-open {
-      border-color: color-mix(in srgb, var(--accent, var(--ink)) 45%, white);
+      background: var(--card-hover);
+      border-color: #3a424c;
+      transform: translateY(-1px);
     }
 
     .card-top {
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
-      gap: 0.65rem;
-      margin-bottom: 0.55rem;
+      gap: 0.6rem;
+      margin-bottom: 0.35rem;
     }
 
-    .ids {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.35rem;
-    }
-
-    .id-pill {
-      font-size: 0.72rem;
-      font-weight: 800;
-      letter-spacing: 0.04em;
-      border-radius: 999px;
-      padding: 0.22rem 0.5rem;
-      background: rgba(18, 32, 46, 0.06);
-    }
-
-    .id-pill.origin {
-      background: color-mix(in srgb, var(--accent, var(--ink)) 14%, white);
-      color: var(--accent, var(--ink));
+    .card h3 {
+      margin: 0;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.35;
     }
 
     .badge {
       flex: 0 0 auto;
-      font-size: 0.68rem;
-      font-weight: 800;
-      letter-spacing: 0.05em;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
       text-transform: uppercase;
       border-radius: 999px;
-      padding: 0.28rem 0.55rem;
-      color: #fff;
+      padding: 0.22rem 0.48rem;
       white-space: nowrap;
+      border: 1px solid transparent;
     }
 
-    .badge.qw { background: var(--qw); }
-    .badge.bb { background: var(--bb); }
-    .badge.fi { background: var(--fi); }
-    .badge.mp { background: var(--mp); }
-
-    .card h3 {
-      margin: 0 0 0.45rem;
-      font-size: 1rem;
-      line-height: 1.35;
-      font-weight: 760;
-    }
+    .badge.qw { color: var(--qw); background: rgba(74, 222, 128, 0.12); border-color: rgba(74, 222, 128, 0.28); }
+    .badge.bb { color: var(--next); background: rgba(96, 165, 250, 0.12); border-color: rgba(96, 165, 250, 0.28); }
+    .badge.fi { color: var(--fi); background: rgba(210, 168, 106, 0.12); border-color: rgba(210, 168, 106, 0.28); }
+    .badge.mp { color: var(--cut); background: rgba(251, 113, 133, 0.12); border-color: rgba(251, 113, 133, 0.28); }
 
     .rationale {
       margin: 0;
       color: var(--muted);
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       line-height: 1.45;
       display: -webkit-box;
-      -webkit-line-clamp: 2;
+      -webkit-line-clamp: 3;
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
@@ -293,123 +232,102 @@
     }
 
     .meta-row {
-      margin-top: 0.75rem;
-      display: flex;
-      flex-wrap: wrap;
+      display: none;
+      margin-top: 0.7rem;
       gap: 0.4rem;
-      opacity: 0.9;
+      flex-wrap: wrap;
     }
+
+    .card.is-open .meta-row { display: flex; }
 
     .score {
       font-size: 0.72rem;
-      font-weight: 700;
+      font-weight: 600;
       color: var(--muted);
-      border: 1px dashed var(--line);
+      border: 1px solid var(--border);
       border-radius: 999px;
-      padding: 0.2rem 0.5rem;
+      padding: 0.18rem 0.48rem;
     }
-
-    .hint {
-      margin-top: 0.55rem;
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: var(--accent, var(--muted));
-      opacity: 0;
-      transform: translateY(4px);
-      transition: opacity 0.18s ease, transform 0.18s ease;
-    }
-
-    .card:hover .hint,
-    .card:focus-visible .hint,
-    .card.is-open .hint { opacity: 1; transform: none; }
 
     .cut {
-      margin-top: 1.25rem;
-      border: 1px solid color-mix(in srgb, var(--cut) 35%, white);
-      background:
-        linear-gradient(180deg, rgba(138, 59, 50, 0.08), rgba(255, 252, 247, 0.7));
-      border-radius: calc(var(--radius) + 4px);
-      padding: 1rem;
-      animation: rise 0.55s ease 0.3s both;
+      margin-top: 1.15rem;
+      border: 1.5px dashed rgba(251, 113, 133, 0.55);
+      border-radius: var(--radius);
+      padding: 1.05rem 1.15rem 1.15rem;
+      background: rgba(251, 113, 133, 0.03);
     }
 
     .cut-head {
       display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: 1rem;
+      align-items: center;
+      gap: 0.45rem;
       margin-bottom: 0.85rem;
-    }
-
-    .cut-head h2 {
-      margin: 0;
-      font-family: "Syne", sans-serif;
       color: var(--cut);
-      font-size: 1.1rem;
-      letter-spacing: 0.04em;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      font-size: 0.92rem;
     }
 
-    .cut-head p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 0.85rem;
+    .cut-head .icon {
+      font-size: 1rem;
+      line-height: 1;
     }
 
-    .cut-grid {
+    .cut-list {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 0.75rem;
+      gap: 0.85rem;
     }
 
-    @media (max-width: 720px) {
-      .cut-grid { grid-template-columns: 1fr; }
+    .cut-item {
+      cursor: pointer;
+      outline: none;
+      border-radius: 8px;
+      padding: 0.15rem 0.1rem;
     }
 
-    .cut .card {
-      --accent: var(--cut);
-      background: rgba(255, 248, 246, 0.95);
+    .cut-item:hover,
+    .cut-item:focus-visible {
+      background: rgba(251, 113, 133, 0.06);
     }
 
-    .legend {
-      margin-top: 1.25rem;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.55rem;
-      color: var(--muted);
-      font-size: 0.8rem;
-      font-weight: 600;
+    .cut-item .title {
+      color: var(--text);
+      font-weight: 700;
+      font-size: 0.95rem;
     }
 
-    .legend i {
-      display: inline-block;
-      width: 0.65rem;
-      height: 0.65rem;
-      border-radius: 999px;
-      margin-right: 0.35rem;
-      vertical-align: -1px;
+    .cut-item .why {
+      color: #b1a0a4;
+      font-weight: 400;
+      font-size: 0.9rem;
+    }
+
+    .cut-item .badge-wrap {
+      display: inline-flex;
+      margin-left: 0.45rem;
+      vertical-align: 2px;
     }
 
     .is-hidden { display: none !important; }
 
-    @keyframes rise {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: none; }
+    .legend {
+      margin-top: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem 1.1rem;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 500;
     }
   </style>
 </head>
 <body>
   <div class="wrap">
     <header>
-      <div class="eyebrow"><span></span> BU Collection · Product roadmap</div>
-      <h1>Hypothesis-led backlog</h1>
-      <p class="sub">
-        Close Daniel’s blind handoff and stop mid-journey stalls — without trading keepable plans for agreement volume.
-      </p>
-      <div class="meta">
-        <div class="chip">Team: 6 (PM · Design · 2 Eng · 2 Collection ops)</div>
-        <div class="chip">Signal: repeated checks 69.7% → ≤55%</div>
-        <div class="chip">Guardrail: SSR ≥ 34.7%</div>
-        <div class="chip">Window: 8 weeks</div>
+      <div class="step">Step 4 · Roadmap</div>
+      <div class="titles">
+        <h1>Your Now / Next / Later roadmap</h1>
+        <p>BU Collection · Team of 6</p>
       </div>
     </header>
 
@@ -432,7 +350,7 @@
       <div class="lane" data-lane="NEXT">
         <div class="lane-head">
           <h2>NEXT</h2>
-          <small>Following sprints</small>
+          <small>The following sprints</small>
         </div>
         <div class="cards" data-slot="NEXT"></div>
       </div>
@@ -446,26 +364,22 @@
     </section>
 
     <section class="cut" data-lane="CUT" id="cut-list">
-      <div class="cut-head">
-        <h2>Cut list</h2>
-        <p>Explicitly out — protect keepability and the hypothesis.</p>
-      </div>
-      <div class="cut-grid cards" data-slot="CUT"></div>
+      <div class="cut-head"><span class="icon" aria-hidden="true">✂</span> CUT LIST</div>
+      <div class="cut-list" data-slot="CUT"></div>
     </section>
 
     <div class="legend">
-      <span><i style="background:var(--qw)"></i>Quick win · high value / low effort</span>
-      <span><i style="background:var(--bb)"></i>Big bet · high value / high effort</span>
-      <span><i style="background:var(--fi)"></i>Fill-in · low value / low effort</span>
-      <span><i style="background:var(--mp)"></i>Money pit · low value / high effort</span>
+      <span>Quick win · V≥4 / E≤2</span>
+      <span>Big bet · V≥4 / E≥3</span>
+      <span>Fill-in · V≤3 / E≤2</span>
+      <span>Money pit · V≤3 / E≥3</span>
     </div>
   </div>
 
   <script>
     const FEATURES = [
       {
-        roadmapId: "B1",
-        backlogId: "B4",
+        id: "B4",
         lane: "NOW",
         name: "Handoff summary for the agent when a consumer calls",
         rationale: "Direct test of the hypothesis; attacks 69.7% repeated checks.",
@@ -473,8 +387,7 @@
         effort: 2
       },
       {
-        roadmapId: "B2",
-        backlogId: "B2",
+        id: "B2",
         lane: "NOW",
         name: "Plain explainer for why income is asked",
         rationale: "Cheap; cuts Mara freeze + top call reason before Daniel is needed.",
@@ -482,8 +395,7 @@
         effort: 1
       },
       {
-        roadmapId: "B3",
-        backlogId: "B5",
+        id: "B5",
         lane: "NEXT",
         name: "Mobile photo upload / skip under threshold",
         rationale: "Hits largest in-journey leak (Income doc→Plan −22%).",
@@ -491,8 +403,7 @@
         effort: 3
       },
       {
-        roadmapId: "B4",
-        backlogId: "B1",
+        id: "B1",
         lane: "NEXT",
         name: "One plan for several open claims",
         rationale: "Multi-claim = 40–43% agent contact; biggest segment pain, heavier build.",
@@ -500,8 +411,7 @@
         effort: 4
       },
       {
-        roadmapId: "B5",
-        backlogId: "B3",
+        id: "B3",
         lane: "LATER",
         name: "Affordability check before plan options",
         rationale: "Supports keepability after handoff works; not the first gap to close.",
@@ -509,8 +419,7 @@
         effort: 3
       },
       {
-        roadmapId: "B6",
-        backlogId: "B6",
+        id: "B6",
         lane: "LATER",
         name: "Pick a payment date that matches pay day",
         rationale: "Nice keepability tweak; weak link to Daniel’s blind-handoff metric.",
@@ -518,8 +427,7 @@
         effort: 2
       },
       {
-        roadmapId: "B7",
-        backlogId: "B8",
+        id: "B8",
         lane: "CUT",
         name: "Chat assistant on every portal page",
         rationale: "Raises agree but already lifts miss risk; volume, not sustainable handoff.",
@@ -527,8 +435,7 @@
         effort: 4
       },
       {
-        roadmapId: "B8",
-        backlogId: "B7",
+        id: "B7",
         lane: "CUT",
         name: "Show the shortest plan first to raise recovery",
         rationale: "Month-4 default already hurt keepability (miss 15.6%→19%); anti-hypothesis.",
@@ -551,44 +458,50 @@
       return `
         <article class="card" tabindex="0" role="button" aria-expanded="false"
           data-lane="${feature.lane}"
-          aria-label="${feature.roadmapId}: ${feature.name}">
+          aria-label="${feature.id}: ${feature.name}">
           <div class="card-top">
-            <div class="ids">
-              <span class="id-pill">${feature.roadmapId}</span>
-              <span class="id-pill origin">Case ${feature.backlogId}</span>
-            </div>
+            <h3>${feature.id} - ${feature.name}</h3>
             <span class="badge ${q.key}">${q.label}</span>
           </div>
-          <h3>${feature.name}</h3>
           <p class="rationale">${feature.rationale}</p>
           <div class="meta-row">
             <span class="score">Value ${feature.value}/5</span>
             <span class="score">Effort ${feature.effort}/5</span>
           </div>
-          <div class="hint">Click to expand rationale</div>
         </article>
       `;
     }
 
+    function cutHTML(feature) {
+      const q = quadrant(feature);
+      return `
+        <div class="cut-item" tabindex="0" role="button" aria-label="${feature.id} cut item">
+          <span class="title">${feature.id} - ${feature.name}</span><span class="badge-wrap"><span class="badge ${q.key}">${q.label}</span></span>
+          <div class="why">${feature.rationale}</div>
+        </div>
+      `;
+    }
+
+    function bindToggle(el) {
+      const toggle = () => el.classList.toggle("is-open");
+      el.addEventListener("click", toggle);
+      el.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          toggle();
+        }
+      });
+    }
+
     function render() {
-      ["NOW", "NEXT", "LATER", "CUT"].forEach((lane) => {
+      ["NOW", "NEXT", "LATER"].forEach((lane) => {
         const root = document.querySelector(`[data-slot="${lane}"]`);
         root.innerHTML = FEATURES.filter((f) => f.lane === lane).map(cardHTML).join("");
       });
+      document.querySelector('[data-slot="CUT"]').innerHTML =
+        FEATURES.filter((f) => f.lane === "CUT").map(cutHTML).join("");
 
-      document.querySelectorAll(".card").forEach((card) => {
-        const toggle = () => {
-          const open = card.classList.toggle("is-open");
-          card.setAttribute("aria-expanded", String(open));
-        };
-        card.addEventListener("click", toggle);
-        card.addEventListener("keydown", (event) => {
-          if (event.key === "Enter" || event.key === " ") {
-            event.preventDefault();
-            toggle();
-          }
-        });
-      });
+      document.querySelectorAll(".card, .cut-item").forEach(bindToggle);
     }
 
     function setFilter(filter) {
@@ -598,15 +511,8 @@
 
       document.querySelectorAll(".lane, .cut").forEach((section) => {
         const lane = section.dataset.lane;
-        const show =
-          filter === "ALL" ||
-          (filter === "CUT" && lane === "CUT") ||
-          (filter !== "CUT" && (filter === lane || (filter !== "ALL" && lane === filter)));
-        // All: show everything. Specific lane: show that lane only. CUT: show cut list only.
         if (filter === "ALL") {
           section.classList.remove("is-hidden");
-        } else if (filter === "CUT") {
-          section.classList.toggle("is-hidden", lane !== "CUT");
         } else {
           section.classList.toggle("is-hidden", lane !== filter);
         }
