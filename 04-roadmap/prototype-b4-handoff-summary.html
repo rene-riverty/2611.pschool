@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>B4 · Agent Handoff Summary (Prototype)</title>
+<style>
+  /* Riverty Design System tokens (Light) — inlined; no CDN (prototype: no network) */
+  :root {
+    --r-font-family-text: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --r-text-regular: #282828;
+    --r-text-soft: #686868;
+    --r-text-strong: #000000;
+    --r-background-softest: #ffffff;
+    --r-background-softer: #f3f1f0;
+    --r-border-softest: #e7e4e2;
+    --r-brand-vanguard: #527a42;
+    --r-status-info-soft: #f8fafb;
+    --r-status-info-regular: #466882;
+    --r-status-success-soft: #f7fdf8;
+    --r-status-success-regular: #298535;
+    --r-status-warning-soft: #fef9f5;
+    --r-status-warning-regular: #f26a20;
+    --r-status-error-soft: #fef6f6;
+    --r-status-error-regular: #da1e28;
+    --r-radius: 0;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: var(--r-font-family-text);
+    color: var(--r-text-regular);
+    background: var(--r-background-softer);
+    line-height: 1.45;
+  }
+  header.app {
+    background: var(--r-background-softest);
+    border-bottom: 1px solid var(--r-border-softest);
+    padding: 14px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+  header.app .brand {
+    font-size: 12px;
+    font-weight: 650;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--r-brand-vanguard);
+    margin-bottom: 2px;
+  }
+  header.app h1 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--r-text-strong);
+  }
+  header.app .sub { color: var(--r-text-soft); font-size: 13px; }
+  main { max-width: 960px; margin: 0 auto; padding: 20px; }
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* Status-Surface (RDS): square, soft BG + regular border, optional 4px left accent */
+  .status-surface {
+    background: var(--r-status-info-soft);
+    border: 1px solid var(--r-status-info-regular);
+    border-left-width: 4px;
+    border-radius: var(--r-radius);
+    color: var(--r-text-strong);
+    padding: 12px 14px;
+    margin: 12px 0;
+    font-size: 14px;
+  }
+  .status-surface .ss-title {
+    margin: 0 0 4px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--r-status-info-regular);
+  }
+  .status-surface.info {
+    background: var(--r-status-info-soft);
+    border-color: var(--r-status-info-regular);
+  }
+  .status-surface.info .ss-title { color: var(--r-status-info-regular); }
+  .status-surface.warn {
+    background: var(--r-status-warning-soft);
+    border-color: var(--r-status-warning-regular);
+  }
+  .status-surface.warn .ss-title { color: var(--r-status-warning-regular); }
+  .status-surface.error {
+    background: var(--r-status-error-soft);
+    border-color: var(--r-status-error-regular);
+  }
+  .status-surface.error .ss-title { color: var(--r-status-error-regular); }
+  .status-surface.ok {
+    background: var(--r-status-success-soft);
+    border-color: var(--r-status-success-regular);
+  }
+  .status-surface.ok .ss-title { color: var(--r-status-success-regular); }
+  .metric-strip { margin-top: 0; margin-bottom: 16px; }
+  .guardrail { margin-top: 16px; }
+
+  .toolbar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 12px 0 16px;
+    align-items: center;
+  }
+  label.inline { font-size: 13px; color: var(--r-text-soft); }
+  input[type="search"],
+  select {
+    padding: 8px 10px;
+    border: 1px solid var(--r-border-softest);
+    border-radius: var(--r-radius);
+    min-width: 220px;
+    background: var(--r-background-softest);
+    color: var(--r-text-regular);
+    font: inherit;
+  }
+  select { max-width: 360px; min-width: 200px; }
+  input[type="search"]:focus,
+  select:focus,
+  button:focus-visible {
+    outline: 2px solid var(--r-status-info-regular);
+    outline-offset: 2px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--r-background-softest);
+    border: 1px solid var(--r-border-softest);
+    border-radius: var(--r-radius);
+  }
+  th, td {
+    text-align: left;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--r-border-softest);
+    font-size: 14px;
+    vertical-align: middle;
+  }
+  th {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--r-text-soft);
+    background: var(--r-background-softer);
+  }
+  tr:last-child td { border-bottom: none; }
+
+  /* Status chip — colour carries meaning; no extra severity badge */
+  .chip {
+    display: inline-block;
+    padding: 3px 8px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid;
+    border-radius: var(--r-radius);
+    white-space: nowrap;
+  }
+  .chip.digital {
+    border-color: var(--r-status-info-regular);
+    color: var(--r-status-info-regular);
+    background: var(--r-status-info-soft);
+  }
+  .chip.none {
+    border-color: var(--r-border-softest);
+    color: var(--r-text-soft);
+    background: var(--r-background-softest);
+  }
+  .chip.fresh {
+    border-color: var(--r-status-success-regular);
+    color: var(--r-status-success-regular);
+    background: var(--r-status-success-soft);
+  }
+  .chip.stale {
+    border-color: var(--r-status-warning-regular);
+    color: var(--r-status-warning-regular);
+    background: var(--r-status-warning-soft);
+  }
+  .chip.missing {
+    border-color: var(--r-status-error-regular);
+    color: var(--r-status-error-regular);
+    background: var(--r-status-error-soft);
+  }
+
+  /* Buttons — square, brand primary */
+  button {
+    font: inherit;
+    padding: 8px 14px;
+    border: 1px solid var(--r-border-softest);
+    border-radius: var(--r-radius);
+    background: var(--r-background-softest);
+    color: var(--r-text-strong);
+    cursor: pointer;
+  }
+  button.primary {
+    background: var(--r-brand-vanguard);
+    border-color: var(--r-brand-vanguard);
+    color: #ffffff;
+  }
+  button.primary:hover:not(:disabled) { filter: brightness(0.95); }
+  button.secondary {
+    border-color: var(--r-brand-vanguard);
+    color: var(--r-brand-vanguard);
+    background: var(--r-background-softest);
+  }
+  button.primary:disabled,
+  button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    filter: none;
+  }
+  button.ghost {
+    border-color: transparent;
+    background: transparent;
+    color: var(--r-text-soft);
+    padding-left: 0;
+  }
+
+  .case-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: flex-start;
+    margin-bottom: 8px;
+  }
+  .case-header h2 {
+    margin: 0 0 4px;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--r-text-strong);
+  }
+  .meta { color: var(--r-text-soft); font-size: 13px; }
+
+  .panel {
+    background: var(--r-background-softest);
+    border: 1px solid var(--r-border-softest);
+    border-radius: var(--r-radius);
+    padding: 14px;
+    margin-top: 12px;
+    box-shadow: none;
+  }
+  .panel.highlight {
+    border-color: var(--r-status-info-regular);
+    box-shadow: inset 4px 0 0 var(--r-status-info-regular);
+  }
+  .panel h3,
+  .section-title {
+    margin: 0 0 10px;
+    padding-bottom: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--r-text-regular);
+    border-bottom: 1px solid var(--r-border-softest);
+  }
+  .section-label {
+    margin: 16px 0 8px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--r-text-soft);
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 16px;
+  }
+  @media (max-width: 700px) { .grid { grid-template-columns: 1fr; } }
+  .field dt { font-size: 12px; color: var(--r-text-soft); margin: 0; }
+  .field dd { margin: 2px 0 0; font-size: 14px; color: var(--r-text-strong); }
+  .field dd.unavailable {
+    color: var(--r-status-error-regular);
+    font-style: italic;
+  }
+  .actions-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .decision {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+    padding: 14px;
+    background: var(--r-background-softest);
+    border: 1px solid var(--r-border-softest);
+  }
+  .decision label { font-size: 14px; color: var(--r-text-regular); }
+  .checklist { list-style: none; padding: 0; margin: 12px 0; }
+  .checklist li {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--r-border-softest);
+    font-size: 14px;
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .ok-mark { color: var(--r-status-success-regular); font-weight: 650; }
+  .na-mark { color: var(--r-text-soft); }
+  .talking {
+    font-size: 13px;
+    color: var(--r-status-info-regular);
+    margin-top: 8px;
+  }
+  .error-msg {
+    color: var(--r-status-error-regular);
+    font-size: 13px;
+    margin-top: 8px;
+    display: none;
+  }
+  .error-msg.show { display: block; }
+  .instrument {
+    font-size: 12px;
+    color: var(--r-text-soft);
+    margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+  <header class="app">
+    <div>
+      <div class="brand">Riverty Collection</div>
+      <h1>Agent Workspace · Daniel</h1>
+      <div class="sub">B4 Handoff Summary · Riverty Design System · read-only · no network</div>
+    </div>
+    <div class="sub" id="clock">Call timer: 00:00</div>
+  </header>
+
+  <main>
+    <!-- SCREEN 1: Entry / queue -->
+    <section id="screen-queue" class="screen active" aria-label="Inbound queue">
+      <div class="status-surface info metric-strip">
+        <p class="ss-title">Primary metric</p>
+        Target: cut repeated identity/affordability checks <strong>69.7% → ≤55%</strong>
+      </div>
+      <div class="toolbar">
+        <label class="inline" for="search">Search claim ref</label>
+        <input type="search" id="search" placeholder="e.g. CL-10482" />
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Consumer</th>
+            <th>Claim ref</th>
+            <th>Channel</th>
+            <th>Digital attempt</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="queue-body"></tbody>
+      </table>
+    </section>
+
+    <!-- SCREEN 2: Handoff core -->
+    <section id="screen-summary" class="screen" aria-label="Handoff summary">
+      <button type="button" class="ghost" id="btn-back-queue">← Back to queue</button>
+      <div class="case-header">
+        <div>
+          <h2 id="case-name">—</h2>
+          <div class="meta"><span id="case-ref">—</span> · Phone inbound</div>
+        </div>
+        <div class="meta" id="case-timer">Call timer: 03:42 (demo)</div>
+      </div>
+
+      <div id="banners"></div>
+
+      <div class="panel" id="handoff-panel">
+        <h3 class="section-title">Handoff summary</h3>
+        <div class="toolbar" style="margin-top:0">
+          <span class="meta" id="as-of">As of: —</span>
+          <span class="chip missing" id="fresh-chip">Missing</span>
+        </div>
+        <div id="summary-body"></div>
+      </div>
+
+      <div class="actions-row">
+        <button type="button" class="primary" id="btn-start-here">Start where they stopped</button>
+        <button type="button" class="secondary" id="btn-no-reask">Mark: no re-ask</button>
+        <button type="button" class="secondary" id="btn-reask">Mark: had to re-ask</button>
+        <button type="button" disabled title="Out of scope for B4 V1 — WON'T HAVE">Create plan</button>
+        <button type="button" disabled title="Out of scope for B4 V1 — WON'T HAVE">Edit inputs</button>
+        <button type="button" disabled title="Out of scope for B4 V1 — WON'T HAVE">Open chat assistant</button>
+      </div>
+
+      <div class="decision" id="decision-box">
+        <div class="meta">Instrumentation (FR-7): choose before confirm</div>
+        <label><input type="radio" name="decision" value="no_reask" /> no_reask — used online data</label>
+        <label><input type="radio" name="decision" value="reask_required" /> reask_required — had to re-ask</label>
+        <div id="reask-reason-wrap" style="display:none">
+          <label class="inline" for="reask-reason">Re-ask reason</label><br />
+          <select id="reask-reason">
+            <option value="">Select reason…</option>
+            <option value="partial_affordability">partial_affordability</option>
+            <option value="no_digital_attempt">no_digital_attempt</option>
+            <option value="consumer_dispute">consumer_dispute</option>
+            <option value="stale_data">stale_data</option>
+            <option value="other">other</option>
+          </select>
+        </div>
+        <p class="error-msg" id="decision-error">Select no_reask or reask_required to continue.</p>
+        <button type="button" class="primary" id="btn-confirm">Confirm intake</button>
+        <div class="instrument" id="instrument-line">summary_shown = false</div>
+      </div>
+    </section>
+
+    <!-- SCREEN 3: Confirmation -->
+    <section id="screen-confirm" class="screen" aria-label="Confirmation">
+      <div class="status-surface ok" id="confirm-banner">
+        <p class="ss-title">Contexted intake</p>
+        <span id="confirm-banner-text">Handoff loaded — continue from digital attempt</span>
+      </div>
+      <div class="panel">
+        <h3 class="section-title">What was reused</h3>
+        <ul class="checklist" id="reuse-list"></ul>
+        <p><strong>Agent decision:</strong> <span id="confirm-decision">—</span></p>
+        <p class="meta" id="confirm-metric">This contact will count against the 69.7% baseline</p>
+      </div>
+      <div class="status-surface ok guardrail">
+        <p class="ss-title">Guardrail</p>
+        Do not push fragile agree-only plans — protect SSR ≥34.7%
+      </div>
+      <div class="actions-row">
+        <button type="button" class="primary" id="btn-return-queue">Return to queue</button>
+        <button type="button" class="secondary" id="btn-next-case">Open next case</button>
+      </div>
+    </section>
+  </main>
+
+<script>
+(function () {
+  "use strict";
+
+  // Demo "now" fixed so Fresh/Stale is deterministic in the prototype
+  var NOW = new Date("2026-11-11T12:00:00");
+
+  var CASES = [
+    {
+      id: "c1",
+      name: "Mara Jensen",
+      claimRef: "CL-10482",
+      channel: "Phone",
+      attemptStatus: "attempt_present",
+      asOf: "2026-11-11T10:15:00",
+      lastStep: "Income document",
+      lastStepAt: "2026-11-11T10:12:00",
+      lastStepState: "stalled",
+      stallHint: "Likely blocker: income document (upload failed on mobile)",
+      identity: { fullName: "Mara Jensen", dob: "1989-04-12", onlineChannel: "Mobile portal" },
+      affordability: { incomeBand: "EUR 1,800–2,200 / mo", abilityToPay: "EUR 120 / mo", employment: "Variable / shift", complete: true },
+      planOffered: true,
+      plan: { months: 6, monthly: "EUR 95", total: "EUR 570" },
+      rationale: "Declared ability-to-pay supports 6×95 within income band; shorter plan would exceed stated capacity."
+    },
+    {
+      id: "c2",
+      name: "Tom Berger",
+      claimRef: "CL-10901",
+      channel: "Phone",
+      attemptStatus: "attempt_present",
+      asOf: "2026-11-11T09:40:00",
+      lastStep: "Affordability questions",
+      lastStepAt: "2026-11-11T09:38:00",
+      lastStepState: "incomplete",
+      stallHint: null,
+      identity: { fullName: "Tom Berger", dob: "1977-11-03", onlineChannel: "Desktop portal" },
+      affordability: { incomeBand: "Not provided online", abilityToPay: "Not provided online", employment: "Fixed salary", complete: false },
+      planOffered: false,
+      plan: null,
+      rationale: null
+    },
+    {
+      id: "c3",
+      name: "Elena Kruse",
+      claimRef: "CL-11044",
+      channel: "Phone",
+      attemptStatus: "attempt_absent",
+      asOf: null,
+      lastStep: null,
+      lastStepAt: null,
+      lastStepState: null,
+      stallHint: null,
+      identity: null,
+      affordability: null,
+      planOffered: false,
+      plan: null,
+      rationale: null
+    },
+    {
+      id: "c4",
+      name: "Jonas Holm",
+      claimRef: "CL-11220",
+      channel: "Phone",
+      attemptStatus: "attempt_present",
+      asOf: "2026-11-08T16:05:00",
+      lastStep: "Plan review",
+      lastStepAt: "2026-11-08T16:00:00",
+      lastStepState: "failed_agreement",
+      stallHint: null,
+      identity: { fullName: "Jonas Holm", dob: "1992-01-22", onlineChannel: "Mobile portal" },
+      affordability: { incomeBand: "EUR 2,200–2,600 / mo", abilityToPay: "EUR 150 / mo", employment: "Fixed salary", complete: true },
+      planOffered: true,
+      plan: { months: 6, monthly: "EUR 140", total: "EUR 840" },
+      rationale: ""
+    },
+    {
+      id: "c5",
+      name: "Sara Lind",
+      claimRef: "CL-11305",
+      channel: "Phone",
+      attemptStatus: "attempt_present",
+      asOf: "2026-11-11T11:20:00",
+      lastStep: "Plan review",
+      lastStepAt: "2026-11-11T11:18:00",
+      lastStepState: "reached",
+      stallHint: null,
+      identity: { fullName: "Sara Lind", dob: "1985-08-30", onlineChannel: "Desktop portal" },
+      affordability: { incomeBand: "EUR 2,000–2,400 / mo", abilityToPay: "EUR 110 / mo", employment: "Fixed salary", complete: true },
+      planOffered: true,
+      plan: { months: 9, monthly: "EUR 85", total: "EUR 765" },
+      rationale: "Consumer selected longer tenor to keep monthly within stated ability-to-pay."
+    }
+  ];
+
+  var state = {
+    filter: "",
+    currentId: null,
+    summaryShown: false,
+    decision: null,
+    reaskReason: "",
+    lastConfirmedId: null
+  };
+
+  function $(id) { return document.getElementById(id); }
+
+  function showScreen(name) {
+    ["queue", "summary", "confirm"].forEach(function (s) {
+      $("screen-" + s).classList.toggle("active", s === name);
+    });
+  }
+
+  function getCase(id) {
+    for (var i = 0; i < CASES.length; i++) if (CASES[i].id === id) return CASES[i];
+    return null;
+  }
+
+  function hoursBetween(iso) {
+    if (!iso) return null;
+    return (NOW.getTime() - new Date(iso).getTime()) / 36e5;
+  }
+
+  function freshness(c) {
+    if (c.attemptStatus !== "attempt_present" || !c.asOf) return "Missing";
+    var h = hoursBetween(c.asOf);
+    return h > 24 ? "Stale" : "Fresh";
+  }
+
+  function fmt(iso) {
+    if (!iso) return "—";
+    var d = new Date(iso);
+    return d.toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" });
+  }
+
+  function field(label, value, unavailable) {
+    var ddClass = unavailable ? ' class="unavailable"' : "";
+    var v = unavailable ? (value || "Unavailable") : (value || "—");
+    return '<div class="field"><dt>' + label + '</dt><dd' + ddClass + '>' + escapeHtml(v) + '</dd></div>';
+  }
+
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function renderQueue() {
+    var q = state.filter.trim().toLowerCase();
+    var rows = CASES.filter(function (c) {
+      if (!q) return true;
+      return c.claimRef.toLowerCase().indexOf(q) !== -1 || c.name.toLowerCase().indexOf(q) !== -1;
+    });
+    $("queue-body").innerHTML = rows.map(function (c) {
+      var digital = c.attemptStatus === "attempt_present";
+      return (
+        "<tr>" +
+        "<td>" + escapeHtml(c.name) + "</td>" +
+        "<td>" + escapeHtml(c.claimRef) + "</td>" +
+        "<td>" + escapeHtml(c.channel) + "</td>" +
+        '<td><span class="chip ' + (digital ? "digital" : "none") + '">' +
+        (digital ? "Digital attempt" : "No attempt") +
+        "</span></td>" +
+        '<td><button type="button" class="primary" data-open="' + c.id + '">Open case</button></td>' +
+        "</tr>"
+      );
+    }).join("");
+  }
+
+  function setDecisionUI(c) {
+    var radios = document.querySelectorAll('input[name="decision"]');
+    var forceReask = c.attemptStatus === "attempt_absent";
+    var preferReask = forceReask || (c.affordability && !c.affordability.complete);
+    radios.forEach(function (r) {
+      r.disabled = forceReask && r.value === "no_reask";
+      r.checked = false;
+    });
+    state.decision = null;
+    state.reaskReason = "";
+    $("reask-reason").value = "";
+    $("reask-reason-wrap").style.display = "none";
+    $("decision-error").classList.remove("show");
+
+    if (forceReask) {
+      document.querySelector('input[name="decision"][value="reask_required"]').checked = true;
+      state.decision = "reask_required";
+      $("reask-reason-wrap").style.display = "block";
+      $("reask-reason").value = "no_digital_attempt";
+      state.reaskReason = "no_digital_attempt";
+      $("btn-no-reask").disabled = true;
+    } else if (preferReask) {
+      document.querySelector('input[name="decision"][value="reask_required"]').checked = true;
+      state.decision = "reask_required";
+      $("reask-reason-wrap").style.display = "block";
+      $("reask-reason").value = "partial_affordability";
+      state.reaskReason = "partial_affordability";
+      $("btn-no-reask").disabled = false;
+    } else {
+      document.querySelector('input[name="decision"][value="no_reask"]').checked = true;
+      state.decision = "no_reask";
+      $("btn-no-reask").disabled = false;
+    }
+  }
+
+  function renderSummary(c) {
+    state.currentId = c.id;
+    state.summaryShown = true;
+    $("instrument-line").textContent = "summary_shown = true · case=" + c.claimRef + " · status=" + c.attemptStatus;
+
+    $("case-name").textContent = c.name;
+    $("case-ref").textContent = c.claimRef;
+
+    var fresh = freshness(c);
+    $("as-of").textContent = "As of: " + (c.asOf ? fmt(c.asOf) : "—");
+    var chip = $("fresh-chip");
+    chip.textContent = fresh === "Stale" ? "Stale (>24h)" : fresh;
+    chip.className = "chip " + (fresh === "Fresh" ? "fresh" : fresh === "Stale" ? "stale" : "missing");
+
+    var banners = [];
+    if (c.attemptStatus === "attempt_absent") {
+      banners.push('<div class="status-surface error"><p class="ss-title">No digital attempt</p>No digital instalment attempt — standard discovery. Re-ask required.</div>');
+    }
+    if (c.attemptStatus === "attempt_present" && c.affordability && !c.affordability.complete) {
+      banners.push('<div class="status-surface warn"><p class="ss-title">Partial affordability</p>Affordability incomplete online — ask only missing fields.</div>');
+    }
+    if (fresh === "Stale") {
+      banners.push('<div class="status-surface warn"><p class="ss-title">Stale data</p>Confirm critical fields verbally if consumer says data changed.</div>');
+    }
+    if (c.planOffered && (!c.rationale || !String(c.rationale).trim())) {
+      banners.push('<div class="status-surface error"><p class="ss-title">Safety guard</p>Rationale unavailable — do not invent why.</div>');
+    }
+    $("banners").innerHTML = banners.join("");
+
+    var body = "";
+    if (c.attemptStatus === "attempt_absent") {
+      body =
+        '<p class="meta">Identity, affordability and plan blocks are hidden — no digital attempt on record (FR-1 / FR-6).</p>' +
+        '<div class="status-surface info"><p class="ss-title">Standard discovery</p>Use standard phone discovery. This contact counts as a repeated check unless later data appears.</div>';
+    } else {
+      body += '<div class="grid">';
+      body += field("Journey status", c.lastStep ? (c.lastStep + (c.lastStepState ? " · " + c.lastStepState : "")) : "Unavailable", !c.lastStep);
+      body += field("Last step at", c.lastStepAt ? fmt(c.lastStepAt) : "Unavailable", !c.lastStepAt);
+      body += "</div>";
+
+      if (c.stallHint) {
+        body += '<div class="status-surface warn"><p class="ss-title">Stall hint</p>' + escapeHtml(c.stallHint) + " — do not claim upload is fixed.</div>";
+      }
+
+      body += '<p class="section-label">Identity (read-only)</p><div class="grid">';
+      body += field("Full name", c.identity.fullName, false);
+      body += field("Date of birth", c.identity.dob, false);
+      body += field("Online channel", c.identity.onlineChannel, false);
+      body += "</div>";
+
+      body += '<p class="section-label">Affordability (read-only)</p><div class="grid">';
+      var affIncomplete = !c.affordability.complete;
+      body += field("Income band", c.affordability.incomeBand, affIncomplete && c.affordability.incomeBand.indexOf("Not provided") !== -1);
+      body += field("Declared ability to pay", c.affordability.abilityToPay, affIncomplete && c.affordability.abilityToPay.indexOf("Not provided") !== -1);
+      body += field("Employment", c.affordability.employment, false);
+      body += field("Affordability complete", c.affordability.complete ? "Yes" : "No", false);
+      body += "</div>";
+
+      body += '<p class="section-label">Plan offer</p>';
+      if (!c.planOffered) {
+        body += '<div class="status-surface info"><p class="ss-title">No plan offered</p>Last reached step shown above.</div>';
+      } else {
+        body += '<div class="grid">';
+        body += field("Plan", c.plan.months + " months · " + c.plan.monthly + " · total " + c.plan.total, false);
+        var ratMissing = !c.rationale || !String(c.rationale).trim();
+        body += field("Why offered", ratMissing ? "Unavailable / Not provided online" : c.rationale, ratMissing);
+        body += "</div>";
+        if (!ratMissing) {
+          body += '<p class="talking">Talking point: Explain keepability from this rationale — do not rebuild from scratch.</p>';
+        }
+      }
+    }
+
+    $("summary-body").innerHTML = body;
+    $("handoff-panel").classList.remove("highlight");
+    setDecisionUI(c);
+    showScreen("summary");
+  }
+
+  function openCase(id) {
+    var c = getCase(id);
+    if (!c) return;
+    // FR-1: always classified
+    if (c.attemptStatus !== "attempt_present" && c.attemptStatus !== "attempt_absent") {
+      alert("Data defect: attemptStatus must be attempt_present | attempt_absent");
+      return;
+    }
+    renderSummary(c);
+  }
+
+  function confirmIntake() {
+    var c = getCase(state.currentId);
+    if (!c) return;
+    if (!state.decision) {
+      $("decision-error").textContent = "Select no_reask or reask_required to continue.";
+      $("decision-error").classList.add("show");
+      return;
+    }
+    if (state.decision === "reask_required" && !$("reask-reason").value) {
+      $("decision-error").textContent = "Select a re-ask reason.";
+      $("decision-error").classList.add("show");
+      return;
+    }
+    if (c.attemptStatus === "attempt_absent" && state.decision === "no_reask") {
+      $("decision-error").textContent = "No digital attempt — reask_required is forced.";
+      $("decision-error").classList.add("show");
+      return;
+    }
+    $("decision-error").classList.remove("show");
+    state.reaskReason = $("reask-reason").value;
+    state.lastConfirmedId = c.id;
+
+    var hasAttempt = c.attemptStatus === "attempt_present";
+    var idOk = hasAttempt;
+    var affOk = hasAttempt && c.affordability && c.affordability.complete;
+    var planOk = hasAttempt && c.planOffered && c.rationale && String(c.rationale).trim();
+    var planNA = !hasAttempt || !c.planOffered;
+
+    $("confirm-banner-text").textContent = hasAttempt
+      ? "Handoff loaded — continue from digital attempt"
+      : "No digital handoff — standard discovery recorded";
+    $("confirm-banner").className = "status-surface " + (hasAttempt ? "ok" : "warn");
+    var titleEl = $("confirm-banner").querySelector(".ss-title");
+    if (titleEl) titleEl.textContent = hasAttempt ? "Contexted intake" : "Blind path recorded";
+
+    $("reuse-list").innerHTML =
+      "<li>Identity " + (idOk ? '<span class="ok-mark">✓ reused</span>' : '<span class="na-mark">N/A</span>') + "</li>" +
+      "<li>Affordability " + (affOk ? '<span class="ok-mark">✓ reused</span>' : (hasAttempt ? '<span class="na-mark">partial / ask gaps</span>' : '<span class="na-mark">N/A</span>')) + "</li>" +
+      "<li>Plan rationale " + (planOk ? '<span class="ok-mark">✓ reused</span>' : (planNA ? '<span class="na-mark">N/A</span>' : '<span class="na-mark">Unavailable — not invented</span>')) + "</li>";
+
+    if (state.decision === "no_reask") {
+      $("confirm-decision").textContent = "no_reask";
+      $("confirm-metric").textContent = "Metric-positive: counts as NON-REPEAT toward 69.7% → ≤55%.";
+    } else {
+      $("confirm-decision").textContent = "reask_required (" + state.reaskReason + ")";
+      $("confirm-metric").textContent = "Counts as REPEAT (baseline-like) against the 69.7% measure. This contact will count against the 69.7% baseline.";
+    }
+    showScreen("confirm");
+  }
+
+  function nextCase() {
+    var idx = 0;
+    for (var i = 0; i < CASES.length; i++) if (CASES[i].id === state.lastConfirmedId) { idx = i; break; }
+    var next = CASES[(idx + 1) % CASES.length];
+    openCase(next.id);
+  }
+
+  // Events
+  $("search").addEventListener("input", function (e) {
+    state.filter = e.target.value;
+    renderQueue();
+  });
+
+  $("queue-body").addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-open]");
+    if (btn) openCase(btn.getAttribute("data-open"));
+  });
+
+  $("btn-back-queue").addEventListener("click", function () { showScreen("queue"); });
+  $("btn-return-queue").addEventListener("click", function () { showScreen("queue"); renderQueue(); });
+  $("btn-next-case").addEventListener("click", nextCase);
+
+  $("btn-start-here").addEventListener("click", function () {
+    var p = $("handoff-panel");
+    p.classList.add("highlight");
+    p.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  $("btn-no-reask").addEventListener("click", function () {
+    var c = getCase(state.currentId);
+    if (!c || c.attemptStatus === "attempt_absent") return;
+    document.querySelector('input[name="decision"][value="no_reask"]').checked = true;
+    state.decision = "no_reask";
+    $("reask-reason-wrap").style.display = "none";
+    $("decision-error").classList.remove("show");
+  });
+
+  $("btn-reask").addEventListener("click", function () {
+    document.querySelector('input[name="decision"][value="reask_required"]').checked = true;
+    state.decision = "reask_required";
+    $("reask-reason-wrap").style.display = "block";
+    if (!$("reask-reason").value) {
+      var c = getCase(state.currentId);
+      if (c && c.attemptStatus === "attempt_absent") $("reask-reason").value = "no_digital_attempt";
+      else if (c && c.affordability && !c.affordability.complete) $("reask-reason").value = "partial_affordability";
+    }
+    $("decision-error").classList.remove("show");
+  });
+
+  document.querySelectorAll('input[name="decision"]').forEach(function (r) {
+    r.addEventListener("change", function () {
+      state.decision = r.value;
+      $("reask-reason-wrap").style.display = r.value === "reask_required" ? "block" : "none";
+      $("decision-error").classList.remove("show");
+    });
+  });
+
+  $("btn-confirm").addEventListener("click", confirmIntake);
+
+  // Demo call timer (cosmetic)
+  var secs = 0;
+  setInterval(function () {
+    secs += 1;
+    var m = String(Math.floor(secs / 60)).padStart(2, "0");
+    var s = String(secs % 60).padStart(2, "0");
+    $("clock").textContent = "Call timer: " + m + ":" + s;
+  }, 1000);
+
+  renderQueue();
+})();
+</script>
+</body>
+</html>
