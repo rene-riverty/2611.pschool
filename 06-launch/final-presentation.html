@@ -1,0 +1,788 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Great support for human supporter · Final Project · René · Cohort 2 2026 Nov</title>
+  <style>
+    :root {
+      --bg: #07162C;
+      --fg: #ffffff;
+      --muted: #cbd5e1;
+      --orange: #fb923c;
+      --orange-soft: #fdba74;
+      --cyan: #22d3ee;
+      --teal: #34d399;
+      --blue: #60a5fa;
+      --violet: #a78bfa;
+      --pink: #f472b6;
+      --card-border: rgba(251, 146, 60, 0.25);
+      --card-radius: 15px;
+      --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --mono: ui-monospace, Menlo, Consolas, monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html {
+      scroll-behavior: smooth;
+      scroll-snap-type: y mandatory;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--sans);
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      overflow-x: hidden;
+    }
+
+    #progress {
+      position: fixed;
+      top: 0; left: 0;
+      height: 3px;
+      width: 0%;
+      background: linear-gradient(90deg, var(--orange), var(--cyan));
+      z-index: 1000;
+      box-shadow: 0 0 12px rgba(251, 146, 60, 0.45);
+    }
+
+    .dots {
+      position: fixed;
+      right: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 900;
+    }
+    .dots a {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 1px solid rgba(251, 146, 60, 0.55);
+      background: transparent;
+      display: block;
+      transition: transform .15s ease, background .15s ease;
+    }
+    .dots a:hover, .dots a.active {
+      background: var(--orange);
+      transform: scale(1.25);
+    }
+
+    section {
+      min-height: 100vh;
+      scroll-snap-align: start;
+      padding: 56px 64px 48px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    section::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 10% 0%, rgba(251, 146, 60, 0.08), transparent 60%),
+        radial-gradient(ellipse 50% 35% at 90% 100%, rgba(34, 211, 238, 0.06), transparent 55%);
+      pointer-events: none;
+    }
+    .inner {
+      position: relative;
+      z-index: 1;
+      max-width: 1180px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--orange-soft);
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: clamp(2rem, 4.2vw, 3.25rem);
+      line-height: 1.12;
+      margin: 0 0 16px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    h2 {
+      font-size: clamp(1.55rem, 2.8vw, 2.15rem);
+      margin: 0 0 18px;
+      font-weight: 700;
+      letter-spacing: -0.015em;
+    }
+    h3 {
+      font-size: 0.95rem;
+      margin: 0 0 8px;
+      font-weight: 650;
+    }
+    p, li {
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 0.95rem;
+    }
+    a { color: var(--cyan); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .card {
+      background: linear-gradient(160deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
+      border: 1px solid var(--card-border);
+      border-radius: var(--card-radius);
+      padding: 18px 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.28);
+    }
+    .card.hero {
+      background: linear-gradient(135deg, rgba(251,146,60,0.14), rgba(34,211,238,0.06) 55%, rgba(167,139,250,0.08));
+      border-color: rgba(251,146,60,0.4);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.35), 0 0 0 1px rgba(251,146,60,0.08);
+    }
+    .card.callout {
+      border-color: rgba(34, 211, 238, 0.35);
+      background: linear-gradient(135deg, rgba(34,211,238,0.1), rgba(96,165,250,0.05));
+    }
+    .card.warn {
+      border-color: rgba(244, 114, 182, 0.4);
+      background: linear-gradient(135deg, rgba(244,114,182,0.1), rgba(251,146,60,0.05));
+    }
+    .card.teal {
+      border-color: rgba(52, 211, 153, 0.35);
+      background: linear-gradient(135deg, rgba(52,211,153,0.1), rgba(34,211,238,0.05));
+    }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .stack { display: flex; flex-direction: column; gap: 14px; }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.04em;
+      padding: 6px 11px;
+      border-radius: 999px;
+      border: 1px solid rgba(251,146,60,0.35);
+      background: rgba(251,146,60,0.1);
+      color: var(--orange-soft);
+      white-space: nowrap;
+    }
+    .pill.cyan { border-color: rgba(34,211,238,0.4); background: rgba(34,211,238,0.1); color: var(--cyan); }
+    .pill.teal { border-color: rgba(52,211,153,0.4); background: rgba(52,211,153,0.1); color: var(--teal); }
+    .pill.violet { border-color: rgba(167,139,250,0.4); background: rgba(167,139,250,0.12); color: var(--violet); }
+    .pill.blue { border-color: rgba(96,165,250,0.4); background: rgba(96,165,250,0.12); color: var(--blue); }
+    .pill.pink { border-color: rgba(244,114,182,0.4); background: rgba(244,114,182,0.12); color: var(--pink); }
+    .pill.muted { border-color: rgba(203,213,225,0.25); background: rgba(203,213,225,0.06); color: var(--muted); }
+    .pills { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    .metric {
+      font-family: var(--mono);
+      font-size: 1.35rem;
+      color: var(--fg);
+      font-weight: 650;
+    }
+    .metric-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--orange-soft);
+      margin-bottom: 6px;
+    }
+    .mono { font-family: var(--mono); }
+    .fg { color: var(--fg); }
+    .small { font-size: 0.82rem; }
+    .tight { margin: 0; }
+    .mt-8 { margin-top: 8px; }
+    .mt-12 { margin-top: 12px; }
+    .mb-0 { margin-bottom: 0; }
+
+    .journey {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .journey .step {
+      padding: 10px 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(251,146,60,0.2);
+      background: rgba(255,255,255,0.03);
+      min-height: 118px;
+      position: relative;
+    }
+    .journey .step.misery {
+      border-color: rgba(244,114,182,0.55);
+      background: linear-gradient(160deg, rgba(244,114,182,0.16), rgba(251,146,60,0.08));
+      box-shadow: 0 8px 24px rgba(244,114,182,0.12);
+    }
+    .journey .step .n {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--orange-soft);
+      letter-spacing: 0.08em;
+    }
+    .journey .step strong {
+      display: block;
+      font-size: 0.78rem;
+      margin: 4px 0 6px;
+      color: var(--fg);
+      line-height: 1.25;
+    }
+    .journey .step span {
+      font-size: 0.68rem;
+      color: var(--muted);
+      line-height: 1.35;
+      display: block;
+    }
+
+    .roadmap {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+    .roadmap .col h3 { color: var(--fg); }
+    .roadmap .item {
+      font-size: 0.78rem;
+      color: var(--muted);
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.15);
+      margin-top: 8px;
+      line-height: 1.4;
+    }
+    .roadmap .item b { color: var(--fg); display: block; margin-bottom: 2px; }
+    .roadmap .now { border-color: rgba(52,211,153,0.35); }
+    .roadmap .next { border-color: rgba(96,165,250,0.35); }
+    .roadmap .later { border-color: rgba(167,139,250,0.35); }
+    .roadmap .cut { border-color: rgba(244,114,182,0.35); }
+
+    .prd-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 6px;
+    }
+    .prd-list li {
+      font-size: 0.8rem;
+      padding-left: 14px;
+      position: relative;
+    }
+    .prd-list li::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 0.55em;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--orange);
+    }
+
+    .kv {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: 6px 12px;
+      font-size: 0.82rem;
+    }
+    .kv dt {
+      font-family: var(--mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--orange-soft);
+      padding-top: 3px;
+    }
+    .kv dd { margin: 0; color: var(--muted); }
+
+    .rules {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .rules .card { padding: 14px; }
+    .rules .tag {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .footer-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-top: 18px;
+    }
+
+    .hint {
+      position: absolute;
+      bottom: 18px;
+      right: 64px;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      color: rgba(203,213,225,0.45);
+      text-transform: uppercase;
+      z-index: 2;
+    }
+
+    @media (max-width: 1100px) {
+      section { padding: 48px 28px 64px; }
+      .grid-2, .grid-3, .grid-4, .roadmap, .rules, .journey { grid-template-columns: 1fr 1fr; }
+      .journey { grid-template-columns: repeat(4, 1fr); }
+      .dots { right: 10px; }
+      .hint { right: 28px; }
+      .kv { grid-template-columns: 1fr; gap: 2px 0; }
+    }
+    @media (max-width: 720px) {
+      .grid-2, .grid-3, .grid-4, .roadmap, .rules, .journey { grid-template-columns: 1fr; }
+      h1 { font-size: 1.75rem; }
+      .dots { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div id="progress" aria-hidden="true"></div>
+  <nav class="dots" aria-label="Slide navigation">
+    <a href="#cover" title="Cover"></a>
+    <a href="#strategy" title="Strategy"></a>
+    <a href="#research" title="Research"></a>
+    <a href="#blueprint" title="Blueprint"></a>
+    <a href="#validation" title="Validation"></a>
+    <a href="#launch" title="Launch"></a>
+    <a href="#story" title="Story"></a>
+    <a href="#thanks" title="Submit"></a>
+  </nav>
+
+  <!-- 1 COVER -->
+  <section id="cover">
+    <div class="inner">
+      <p class="eyebrow">Product School · Final Project · BU Collection</p>
+      <div class="card hero" style="padding: 36px 40px;">
+        <div class="pills" style="margin-bottom: 18px;">
+          <span class="pill">B4 · Agent Handoff Summary</span>
+          <span class="pill cyan">A Fair Way Forward</span>
+          <span class="pill violet">Cohort 2 · 2026 Nov</span>
+        </div>
+        <h1>Great support for human supporter</h1>
+        <p class="fg" style="font-size: 1.08rem; max-width: 52rem; margin: 0 0 22px;">
+          For Collection Agents like Daniel, B4 surfaces a read-only handoff of the consumer’s digital instalment attempt at call-start — so you continue where they stopped instead of re-asking identity and affordability.
+        </p>
+        <div class="footer-meta">
+          <span class="pill teal">René (Cohort 2 2026 Nov)</span>
+          <a class="pill blue" href="https://github.com/rene-riverty/2611.pschool" target="_blank" rel="noopener">github.com/rene-riverty/2611.pschool</a>
+          <span class="pill muted">Prototype · 04-roadmap/prototype-b4-handoff-summary.html</span>
+        </div>
+      </div>
+    </div>
+    <div class="hint">↓ Scroll · Arrow keys</div>
+  </section>
+
+  <!-- 2 STRATEGY -->
+  <section id="strategy">
+    <div class="inner stack">
+      <div>
+        <p class="eyebrow">Slide 5 · Strategy</p>
+        <h2>Problem · value · hypothesis</h2>
+      </div>
+      <div class="grid-2">
+        <div class="card warn">
+          <p class="metric-label">Problem statement hook</p>
+          <p class="fg tight" style="font-size: 1.05rem; font-weight: 650;">Not setting up a sustainable payment plan leads to losing benchmark position — cashflow and client trust erode while avoidable agent rework and consumer avoidance scale.</p>
+          <p class="small mt-12 mb-0">Case: Collection — instalment plan. Crisis if nothing for 12 months: less cashflow than possible — loss of benchmark position or customer satisfaction. Systemic avoidance (wait / close tab / call later), not an edge case.</p>
+        </div>
+        <div class="card teal">
+          <p class="metric-label">Value proposition</p>
+          <p class="fg tight small">For consumers like Mara who cannot clear a balance in one go, Riverty Collection offers a digital instalment journey that helps them agree to a plan they can actually keep — and hands them to an agent with full context when they cannot finish alone — so recovery stays responsible, self-service rises for real, and avoidable agent work falls.</p>
+          <p class="mono fg mt-12 mb-0" style="font-size: 0.85rem;">Promise: sustainable digital resolution — not digital volume of agreements.</p>
+          <p class="small mt-12 mb-0">B4 VP: Collection Agents get a read-only, one-screen handoff (identity, affordability, last step, plan + why, freshness) at case-open — cutting repeated identity/affordability checks <span class="mono fg">69.7% → ≤55%</span> without harming SSR <span class="mono fg">≥34.7%</span>.</p>
+        </div>
+      </div>
+      <div class="card callout">
+        <p class="metric-label">Data-backed hypothesis</p>
+        <p class="fg tight" style="font-size: 0.98rem;">Based on N-08 (“Half my calls start with me asking for the same details…”) and M3 evidence that <span class="mono">69.7%</span> of agent contacts repeat identity/affordability checks—fed by mid-journey stalls such as Income document→Plan review (−22.1%)—I believe that solving the blind handoff for Daniel, the context-blind Collection Agent, will result in faster, keepable resolution instead of voice restart, as measured by a drop in repeated identity/affordability checks from <span class="mono">69.7% to ≤55%</span> (~15 pp). I will protect SSR resolved % of journey starters (baseline <span class="mono">34.7%</span>) and will make a go/no-go decision after 8 weeks.</p>
+        <div class="grid-3 mt-12">
+          <div>
+            <div class="metric-label">Primary metric</div>
+            <div class="metric" style="font-size: 1.1rem;">69.7% → ≤55%</div>
+            <p class="small tight">agent_repeated_identity_or_affordability_checks</p>
+          </div>
+          <div>
+            <div class="metric-label">Guardrail</div>
+            <div class="metric" style="font-size: 1.1rem;">SSR ≥ 34.7%</div>
+            <p class="small tight">resolved % of journey starters</p>
+          </div>
+          <div>
+            <div class="metric-label">Decision window</div>
+            <div class="metric" style="font-size: 1.1rem;">8 weeks</div>
+            <p class="small tight">~4 weeks leading · then keep cohort</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 RESEARCH -->
+  <section id="research">
+    <div class="inner stack">
+      <div>
+        <p class="eyebrow">Slide 6 · Research</p>
+        <h2>Workaround · journey · moment of misery</h2>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <p class="metric-label">Competitive analysis / workaround</p>
+          <h3 class="fg">Voice-Restart-Hack</h3>
+          <p class="small tight">Daniel — context-blind Collection Agent. Goal: finish a fair, explainable plan using what Mara already entered online.</p>
+          <p class="small">External tools: phone / hotline + letter↔portal amount check + re-asking / note-taking — outside the digital product.</p>
+          <ol class="small" style="padding-left: 1.1rem; margin: 8px 0;">
+            <li>Consumer stalls digitally or calls</li>
+            <li>Daniel opens case — no online history / no plan rationale</li>
+            <li>Re-asks details already typed (N-08)</li>
+            <li>Failed plan = “just a number” (N-09)</li>
+            <li>Rebuilds plan verbally without digital context</li>
+          </ol>
+          <p class="small mb-0"><span class="fg">Core frustration:</span> Double work + trust break — the hack scales avoidance instead of recovery. Evidence: “Half my calls start with me asking for the same details…” — N-08. Journey file: <span class="mono fg">daniel-future-state-journey.md</span></p>
+        </div>
+        <div class="card hero">
+          <p class="metric-label">Moment of misery</p>
+          <p class="fg" style="font-size: 1.15rem; font-weight: 650; margin: 0 0 10px;">Blind handoff / voice restart</p>
+          <p class="small">Workspace shows almost nothing of the online attempt — roughly half his calls restart with the same questions; burns ~11–13 min AHT and pushes Mara back into avoidance.</p>
+          <div class="grid-2 mt-12">
+            <div>
+              <div class="metric-label">Quantitative</div>
+              <div class="metric">69.7%</div>
+              <p class="small tight">1 807 / 2 592 contacts re-ask</p>
+            </div>
+            <div>
+              <div class="metric-label">Qualitative</div>
+              <p class="small tight fg">N-08 · N-09</p>
+              <p class="small tight">“just a number”</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <p class="metric-label">Journey map · key moments</p>
+        <div class="journey">
+          <div class="step"><div class="n">01</div><strong>Stall / fail online</strong><span>Mara · creates attempt_present</span></div>
+          <div class="step misery"><div class="n">02 · Misery</div><strong>Case open</strong><span>Daniel · badge + handoff — or blind restart</span></div>
+          <div class="step"><div class="n">03</div><strong>Trust check</strong><span>as of · Fresh / Stale / Missing</span></div>
+          <div class="step"><div class="n">04</div><strong>Explain the offer</strong><span>Plan + why · fix N-09</span></div>
+          <div class="step"><div class="n">05</div><strong>Orient &amp; mark</strong><span>no_reask / reask_required ≤20s</span></div>
+          <div class="step"><div class="n">06</div><strong>Keepable resolve</strong><span>Protect SSR ≥34.7%</span></div>
+          <div class="step"><div class="n">07</div><strong>Close + learn</strong><span>Habit → 69.7%→≤55%</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 BLUEPRINT -->
+  <section id="blueprint">
+    <div class="inner stack">
+      <div>
+        <p class="eyebrow">Slide 7 · Blueprint</p>
+        <h2>Roadmap · PRD · prototype</h2>
+      </div>
+      <div class="roadmap">
+        <div class="card now">
+          <h3>Now</h3>
+          <div class="item"><b>B4 · Handoff summary</b>Quick Win · V5 E2 · Direct test of hypothesis; attacks 69.7% repeated checks.</div>
+          <div class="item"><b>B2 · Income explainer</b>Quick Win · V4 E1 · Cuts Mara freeze + top call reason.</div>
+        </div>
+        <div class="card next">
+          <h3>Next</h3>
+          <div class="item"><b>B5 · Mobile photo upload / skip</b>Major · Hits Income doc→Plan −22%.</div>
+          <div class="item"><b>B1 · One plan · multi-claim</b>Major · 40–43% agent contact segment.</div>
+        </div>
+        <div class="card later">
+          <h3>Later</h3>
+          <div class="item"><b>B3 · Affordability before options</b>Keepability after handoff works.</div>
+          <div class="item"><b>B6 · Payday-aligned due date</b>Weak link to blind-handoff metric.</div>
+        </div>
+        <div class="card cut">
+          <h3>Cut</h3>
+          <div class="item"><b>B8 · Chat on every page</b>Agree↑ miss risk · volume not handoff.</div>
+          <div class="item"><b>B7 · Shortest plan first</b>Miss 15.6%→19% · anti-hypothesis.</div>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <p class="metric-label">PRD highlights · B4</p>
+          <ul class="prd-list">
+            <li><span class="fg">Vision:</span> One-screen, read-only handoff — start where Mara stopped, not at zero.</li>
+            <li><span class="fg">Problem:</span> Blind handoff — 69.7% re-ask (N-08; N-09 “just a number”).</li>
+            <li><span class="fg">Success:</span> 69.7% → ≤55%; SSR ≥34.7%; 8-week window.</li>
+            <li><span class="fg">US-1–3:</span> Intake context · plan + why · freshness + instrumentation.</li>
+            <li><span class="fg">3 screens:</span> Case list → Handoff Summary → Confirmation.</li>
+            <li><span class="fg">MUST / WON'T:</span> RO + instrumentation; no write-path / chat / multi-claim.</li>
+            <li><span class="fg">Safety:</span> Missing = Unavailable; no AI “suggest why.”</li>
+          </ul>
+        </div>
+        <div class="card hero" style="display:flex; flex-direction:column; justify-content:center;">
+          <p class="metric-label">Prototype</p>
+          <p class="fg" style="font-size: 1.2rem; font-weight: 650; margin: 0 0 8px;">04-roadmap/prototype-b4-handoff-summary.html</p>
+          <p class="small mb-0">High-fidelity single-file prototype · Agent Workspace · Daniel · three screens · read-only handoff with no_reask / reask_required marks.</p>
+          <div class="pills mt-12">
+            <span class="pill teal">Persona · Daniel</span>
+            <span class="pill">Primary · 69.7% → ≤55%</span>
+            <span class="pill cyan">Guardrail · SSR ≥34.7%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 VALIDATION -->
+  <section id="validation">
+    <div class="inner stack">
+      <div>
+        <p class="eyebrow">Slide 8 · Validation</p>
+        <h2>Experiment plan</h2>
+      </div>
+      <div class="card hero">
+        <p class="metric-label">Hypothesis under test</p>
+        <p class="fg tight">Read-only one-screen handoff for Daniel: identity, affordability, last journey step, plan + rationale, freshness — so inbound calls start where the consumer stopped, not at zero — measured by a drop in <span class="mono">agent_repeated_identity_or_affordability_checks</span>.</p>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <p class="metric-label">Control (A)</p>
+          <p class="fg tight small">Agent workspace without handoff summary</p>
+        </div>
+        <div class="card teal">
+          <p class="metric-label">Variant (B)</p>
+          <p class="fg tight small">Agent workspace with read-only Agent Handoff Summary (PRD Screens 1–3) + no-reask / re-ask mark. Same app, eligibility, plan engine, write-path off, no new coaching scripts that change resolution policy.</p>
+        </div>
+      </div>
+      <div class="grid-4">
+        <div class="card">
+          <div class="metric-label">Primary metric</div>
+          <div class="metric" style="font-size:1rem;">re-ask rate</div>
+          <p class="small tight mono">agent_repeated_…_checks</p>
+        </div>
+        <div class="card">
+          <div class="metric-label">Baseline</div>
+          <div class="metric">69.7%</div>
+          <p class="small tight">1 807 / 2 592</p>
+        </div>
+        <div class="card">
+          <div class="metric-label">MDE</div>
+          <div class="metric">−5 pts</div>
+          <p class="small tight">n=1 260 / arm · 50/50 · 14d · p&lt;0.05</p>
+        </div>
+        <div class="card">
+          <div class="metric-label">Guardrail</div>
+          <div class="metric">34.7%</div>
+          <p class="small tight">SSR · must not drop</p>
+        </div>
+      </div>
+      <div class="rules">
+        <div class="card teal">
+          <div class="tag" style="color: var(--teal);">Ship</div>
+          <p class="small tight fg">Primary improves by ≥ 5 pts at p&lt;0.05 and SSR stays ≥34.7% after the test window.</p>
+        </div>
+        <div class="card callout">
+          <div class="tag" style="color: var(--cyan);">Iterate</div>
+          <p class="small tight fg">Direction positive but lift below MDE — refine enablement / trust UX, keep scope locked.</p>
+        </div>
+        <div class="card warn">
+          <div class="tag" style="color: var(--pink);">Kill</div>
+          <p class="small tight fg">No improvement or negative move on primary; or SSR falls / miss rate rises while leading metric stays flat.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 LAUNCH -->
+  <section id="launch">
+    <div class="inner stack">
+      <div>
+        <p class="eyebrow">Slide 9 · Launch</p>
+        <h2>GTM strategy · success dashboard</h2>
+      </div>
+      <div class="grid-3">
+        <div class="card">
+          <div class="metric-label">GTM goal</div>
+          <div class="metric">Engagement</div>
+          <p class="small tight">Agents use summary at call-start and mark no_reask instead of re-asking.</p>
+        </div>
+        <div class="card">
+          <div class="metric-label">Audience</div>
+          <div class="metric" style="font-size:1.1rem;">Daniel · agents</div>
+          <p class="small tight">Pilot Collection Agents on inbound + digital attempt.</p>
+        </div>
+        <div class="card">
+          <div class="metric-label">Launch tier</div>
+          <div class="metric">M</div>
+          <p class="small tight">Targeted · release + M-tier GTM. Silence = failed launch even if deploy succeeds. Paid = €0.</p>
+        </div>
+      </div>
+      <div class="card">
+        <p class="metric-label">Channels</p>
+        <div class="pills">
+          <span class="pill">Owned · In-product badge + panel</span>
+          <span class="pill">Owned · TL huddle / week-1</span>
+          <span class="pill">Owned · Confluence + Loom</span>
+          <span class="pill cyan">Owned · #handoff-pilot</span>
+          <span class="pill teal">Earned · Peer demos</span>
+          <span class="pill teal">Earned · TL shout-outs</span>
+          <span class="pill muted">Paid · None</span>
+        </div>
+        <p class="small mt-12 mb-0">Enablement one-liner: <span class="fg">Start where the consumer stopped — don’t restart identity/affordability by voice.</span> Most likely post-launch: <span class="fg">Iterate</span>; double-down only on clean 69.7%→≤55% with SSR intact.</p>
+      </div>
+      <div class="grid-3">
+        <div class="card">
+          <div class="metric-label">01 · Adoption</div>
+          <div class="metric" style="font-size:1.15rem;">≥90%</div>
+          <p class="small tight"><span class="mono">summary_shown</span> on eligible contacts by end week 2</p>
+        </div>
+        <div class="card">
+          <div class="metric-label">02 · Time to key action</div>
+          <div class="metric" style="font-size:1.15rem;">≤20s</div>
+          <p class="small tight">Open case → mark no_reask / reask_required</p>
+        </div>
+        <div class="card">
+          <div class="metric-label">03 · Habit / outcome</div>
+          <div class="metric" style="font-size:1.15rem;">≤55%</div>
+          <p class="small tight">Re-asks by week 8 · leading ≥5 pp by week 4</p>
+        </div>
+      </div>
+      <div class="card warn">
+        <p class="metric-label">Bad signal · early warning</p>
+        <p class="fg tight mb-0">High <span class="mono">summary_shown</span>, but <span class="mono">no_reask</span> flat → enablement / trust problem, not channel reach. Act: re-brief TL, fix stale/partial UX — don’t add channels. Guardrail: SSR ≥34.7% (if it drops → pause scale).</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 STORY -->
+  <section id="story">
+    <div class="inner stack">
+      <div>
+        <p class="eyebrow">Slide 10 · Story</p>
+        <h2>Friction · aha · next</h2>
+      </div>
+      <div class="grid-2">
+        <div class="card warn">
+          <p class="metric-label">Friction points</p>
+          <ul class="prd-list">
+            <li>Blind handoff — workspace hides the online attempt (N-08)</li>
+            <li>Voice restart — rebuild identity + affordability by phone</li>
+            <li>“Just a number” — failed plan with no why (N-09)</li>
+            <li>Trust gap — no freshness → agent won’t rely on data</li>
+            <li>Habit inertia — panel ships, re-asks continue</li>
+          </ul>
+        </div>
+        <div class="card hero">
+          <p class="metric-label">Aha moment</p>
+          <p class="fg" style="font-size: 1.05rem; font-weight: 650; margin: 0 0 10px;">Daniel opens the case, sees Mara’s identity + affordability + last step + plan why on one screen, and realizes: I don’t have to start at zero — I can continue where she stopped.</p>
+          <p class="small mb-0">First <span class="mono fg">no_reask</span> mark = the hypnosis click; that’s when Engagement becomes real.</p>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <p class="metric-label">Key takeaways</p>
+          <ul class="prd-list">
+            <li>Release + M-tier launch — success = Engagement, not awareness</li>
+            <li>Audience = Daniel / pilot agents — workspace + floor, not paid</li>
+            <li>Silence kills the habit test (~1.8k re-ask contacts/mo pattern)</li>
+            <li>Metrics: shown ≥90% · ≤20s · 69.7%→≤55% · SSR ≥34.7%</li>
+            <li>Bad signal → fix enablement/trust, not more channels</li>
+            <li>Most likely: Iterate; double-down only on clean week-8 read</li>
+          </ul>
+        </div>
+        <div class="card teal">
+          <p class="metric-label">What I’d do next</p>
+          <ol class="small" style="margin:0; padding-left:1.15rem;">
+            <li>Name owners (Eng, Pilot TL, Analyst, Compliance) — unblock sign-off</li>
+            <li>Lock metric definitions + Monday strip (manual OK until dashboard)</li>
+            <li>Phase 1 beta (5–8 agents): brief, dry-run, instrumentation check</li>
+            <li>Launch moment: TL huddle + in-product on; day-0 adoption check</li>
+            <li>Week 4 / 8 reads: iterate or double-down / kill — no write-path scope creep</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 THANKS -->
+  <section id="thanks">
+    <div class="inner">
+      <p class="eyebrow">Submit</p>
+      <div class="card hero" style="padding: 40px 44px; text-align: left;">
+        <h1 style="font-size: clamp(2rem, 3.5vw, 2.75rem);">Thank you</h1>
+        <p class="fg" style="font-size: 1.05rem; max-width: 40rem;">
+          Great support for human supporter — B4 Agent Handoff Summary for Daniel.
+        </p>
+        <div class="footer-meta" style="margin-top: 28px;">
+          <span class="pill teal">René (Cohort 2 2026 Nov)</span>
+          <a class="pill blue" href="https://github.com/rene-riverty/2611.pschool" target="_blank" rel="noopener">Repo · github.com/rene-riverty/2611.pschool</a>
+          <span class="pill muted">Deck · 06-launch/final-presentation.html</span>
+          <span class="pill">Prototype · 04-roadmap/prototype-b4-handoff-summary.html</span>
+        </div>
+        <div class="mt-12">
+          <span class="pill pink" style="font-size: 12px; padding: 10px 16px;">Submit to the learning platform</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    (function () {
+      var sections = Array.prototype.slice.call(document.querySelectorAll("section"));
+      var dots = Array.prototype.slice.call(document.querySelectorAll(".dots a"));
+      var progress = document.getElementById("progress");
+
+      function currentIndex() {
+        var mid = window.scrollY + window.innerHeight * 0.35;
+        var idx = 0;
+        for (var i = 0; i < sections.length; i++) {
+          if (sections[i].offsetTop <= mid) idx = i;
+        }
+        return idx;
+      }
+
+      function update() {
+        var i = currentIndex();
+        dots.forEach(function (d, n) { d.classList.toggle("active", n === i); });
+        var max = document.documentElement.scrollHeight - window.innerHeight;
+        var pct = max > 0 ? (window.scrollY / max) * 100 : 0;
+        progress.style.width = pct + "%";
+      }
+
+      function go(n) {
+        n = Math.max(0, Math.min(sections.length - 1, n));
+        sections[n].scrollIntoView({ behavior: "smooth" });
+      }
+
+      window.addEventListener("scroll", update, { passive: true });
+      window.addEventListener("resize", update);
+      update();
+
+      document.addEventListener("keydown", function (e) {
+        var i = currentIndex();
+        if (e.key === "ArrowDown" || e.key === "PageDown" || (e.key === " " && !e.shiftKey)) {
+          e.preventDefault(); go(i + 1);
+        } else if (e.key === "ArrowUp" || e.key === "PageUp" || (e.key === " " && e.shiftKey)) {
+          e.preventDefault(); go(i - 1);
+        } else if (e.key === "Home") {
+          e.preventDefault(); go(0);
+        } else if (e.key === "End") {
+          e.preventDefault(); go(sections.length - 1);
+        } else if (e.key === "Escape") {
+          e.preventDefault(); go(0);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
